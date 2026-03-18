@@ -1,6 +1,6 @@
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams
 from deepeval.metrics import GEval
-from evaluation.groq_llm import GroqDeepEval
+from tema_3_evaluation.groq_llm import GroqDeepEval
 import sys
 from dotenv import load_dotenv
 import httpx
