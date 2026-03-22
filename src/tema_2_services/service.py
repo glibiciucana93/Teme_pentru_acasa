@@ -14,6 +14,7 @@ import faiss
 load_dotenv()
 
 DATA_DIR = os.environ.get("DATA_DIR", "./data")
+print("DATA_DIR =", DATA_DIR)
 CHUNKS_JSON_PATH = os.path.join(DATA_DIR, "data_chunks.json")
 FAISS_INDEX_PATH = os.path.join(DATA_DIR, "faiss.index")
 FAISS_META_PATH = os.path.join(DATA_DIR, "faiss.index.meta")
