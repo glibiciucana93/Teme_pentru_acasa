@@ -22,7 +22,7 @@ USE_MODEL_URL = os.environ.get(
     "https://tfhub.dev/google/universal-sentence-encoder/4",
 )
 
-WEB_URLS = [u for u in os.environ.get("WEB_URLS", "").split(";") if u]
+WEB_URLS = [u for u in os.environ.get("WEB_URLS", "").split(",") if u]
 
 class RAGAssistant:
     """Asistent cu RAG din surse web si un LLM pentru raspunsuri."""
@@ -102,7 +102,7 @@ class RAGAssistant:
         try:
             response = self.client.chat.completions.create(
                 messages=messages,
-                model="openai/gpt-oss-20b",
+                model="llama-3.3-70b-versatile",
             )
             return response.choices[0].message.content
         except Exception:
