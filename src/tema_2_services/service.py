@@ -42,12 +42,14 @@ class RAGAssistant:
 
         # ToDo: Adaugat o propozitie de referinta mai specifica pentru domeniul dvs
         self.relevance = self._embed_texts(
-            "Aceasta este o intrebare relevanta despre ...",
+            "Aceasta este o intrebare relevanta despre fitness, exercitii fizice si nutritie.",
         )[0]
 
         # ToDo: Definiti un prompt de sistem mai detaliat pentru a ghida raspunsurile LLM-ului in directia dorita
         self.system_prompt = (
-            "..."
+        "Esti un antrenor de fitness profesionist. "
+        "Raspunde clar, structurat si bazat pe informatii corecte. "
+        "Ofera sfaturi practice si evita raspunsurile vagi."
         )
 
 
@@ -94,7 +96,9 @@ class RAGAssistant:
             {
                 "role": "user",
                 "content": (
-                    "..."
+                f"Intrebare: {user_input}\n\n"
+                f"Context:\n{context}\n\n"
+                "Raspunde clar si structurat."
                 ),
             },
         ]
@@ -216,25 +220,25 @@ class RAGAssistant:
 
     def calculate_similarity(self, text: str) -> float:
         # ToDo: Ajustati aceasta propozitie de referinta pentru a se potrivi mai bine cu domeniul dvs, astfel incat sa reflecte mai precis ce inseamna "relevant" in contextul aplicatiei dvs.
-        """Returneaza similaritatea cu o propozitie de referinta despre ... ."""
+        """Aceasta este o intrebare despre exercitii fizice, nutritie, antrenament si sanatate."""
         embedding = self._embed_texts(text.strip())[0]
         return self._cosine_similarity(embedding, self.relevance)
 
     def is_relevant(self, user_input: str) -> bool:
         # ToDo: Ajustati pragul de similaritate pentru a se potrivi mai bine cu domeniul dvs, astfel incat sa echilibreze corect intre a permite intrebari relevante si a respinge cele irelevante.
         """Verifica daca intrarea utilizatorului e despre ...."""
-        return self.calculate_similarity(user_input) >= 0.5
+        return self.calculate_similarity(user_input) >= 0.6
 
     def assistant_response(self, user_message: str) -> str:
         """Directioneaza mesajul utilizatorului catre calea potrivita."""
         if not user_message:
             # ToDo: Ajustati acest mesaj pentru a fi mai specific pentru domeniul dvs, astfel incat sa ghideze utilizatorii sa puna intrebari relevante si sa ofere un exemplu concret.
-            return "Te rog scrie un mesaj despre ... ."
+            return "Te rog scrie o intrebare despre fitness (ex: antrenament, nutritie)."
 
         if not self.is_relevant(user_message):
             # ToDo: Ajustati acest mesaj pentru a fi mai specific pentru domeniul dvs, astfel incat sa ghideze utilizatorii sa puna intrebari relevante si sa ofere un exemplu concret.
             return (
-                "..."
+                "Pot raspunde doar la intrebari despre fitness si sanatate."
             )
 
         chunks = self._load_documents_from_web()
@@ -245,5 +249,5 @@ class RAGAssistant:
 if __name__ == "__main__":
     assistant = RAGAssistant()
     # ToDo: Testati cu intrebari relevante pentru domeniul dvs, precum si cu intrebari irelevante pentru a va asigura ca logica de filtrare functioneaza corect.
-    print(assistant.assistant_response("..."))  # test relevant
-    print(assistant.assistant_response("..."))  # test irelevant
+    print(assistant.assistant_response("Ce exercitii sunt bune pentru slabit?"))  # test relevant
+    print(assistant.assistant_response("La ce serveste AI?"))  # test irelevant
