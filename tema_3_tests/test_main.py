@@ -31,14 +31,15 @@ robustness_evaluator = GEval(
     model=groq_model,
 )
 
-#ToDo: Adăugați un test pentru endpoint-ul root 
+
+# ✔ Test pentru endpoint-ul root
 def test_root_endpoint():
     response = requests.get(f"{BASE_URL}/")
     assert response.status_code == 200
     assert isinstance(response.json(), dict)
 
 
-#ToDo: Adăugați un scenariu de testare pentru endpoint-ul /chat/ care să fie evaluat de LLM as a Judge
+# ✔ Test pozitiv evaluat de LLM-as-a-Judge
 @pytest.mark.asyncio
 async def test_chat_llm_judge():
     async with httpx.AsyncClient() as client:
@@ -47,11 +48,14 @@ async def test_chat_llm_judge():
 
         assert response.status_code == 200
         data = response.json()
+
+        assert isinstance(data, dict)
         assert "response" in data
+        assert isinstance(data["response"], str)
 
         test_case = LLMTestCase(
             input=payload["message"],
-            actual_output=data
+            actual_output=data["response"]  # ✔ FIX: trebuie string
         )
 
         quality_evaluator.measure(test_case)
@@ -62,18 +66,25 @@ async def test_chat_llm_judge():
         assert quality_evaluator.score >= 0.7
 
 
-#ToDo: Adăugațu un test negativ pentru endpoint-ul /chat/ care să fie evaluat de LLM as a Judge 
+# ✔ Test negativ evaluat de LLM-as-a-Judge
 @pytest.mark.asyncio
 async def test_chat_negative_llm_judge():
     async with httpx.AsyncClient() as client:
         payload = {"message": ""}  # input invalid
         response = await client.post(f"{BASE_URL}/chat/", json=payload)
 
+        # Acceptăm fie eroare explicită, fie fallback controlat
+        assert response.status_code in [200, 400]
+
         data = response.json()
+        assert isinstance(data, dict)
+
+        # convertim la string pentru evaluator
+        output_text = data.get("response") or data.get("error") or str(data)
 
         test_case = LLMTestCase(
-            input="EMPTY",
-            actual_output=data
+            input="Mesaj gol",
+            actual_output=str(output_text)  # ✔ FIX: string obligatoriu
         )
 
         robustness_evaluator.measure(test_case)
